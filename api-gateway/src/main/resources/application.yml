@@ -1,0 +1,41 @@
+
+server:
+  port: 8020
+
+auth:
+  service:
+    url: http://localhost:8008
+
+cart:
+  service:
+    url: http://localhost:8009
+
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service-route
+          uri: http://localhost:8008
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+
+        - id: cart-service-route
+          uri: ${cart.service.url}
+          predicates:
+            - Path=/cart/**
+          filters:
+            - StripPrefix=1
+            - InjectUserId
+
+
+  application:
+    name: api-gateway
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
